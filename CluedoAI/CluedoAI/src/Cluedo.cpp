@@ -1,7 +1,3 @@
-/*TODO:
-	If you have found the suspect/weapon/room try to query those of yoursel or open or people that will answer last
-	Other improvements?
-*/
 #include <iostream>
 #include <vector>
 #include <string>
