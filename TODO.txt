@@ -1,0 +1,6 @@
+###############################################################TODO:							      		 #
+##############################################################
+
+-If you have found the suspect/weapon/room try to query those 	of yourself or open or people that will answer last
+-Make dictionary to have program input/output in words
+-Split files?
