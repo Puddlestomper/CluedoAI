@@ -2,5 +2,4 @@
 #TODO:							      		                 #
 ##############################################################
 
--Make dictionary to have program input/output in words
 -Split files?

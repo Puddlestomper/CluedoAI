@@ -27,11 +27,17 @@ bool moved = false, running = true, suspFound = false, wepFound = false, roomFou
 
 vector<Node*> pathTo(const short& pos);
 
+static const string cardNames[21] = {"Miss Scarlet", "Colonel Mustard", "Mrs White", "Reverend Green", "Mrs Peacock", "Professor Plum", "Daggar", "Candlestick", 
+									 "Revolver", "Rope", "Lead Pipe", "Spanner", "Hall", "Lounge", "Dining Room", "Kitchen", "Ball Room", "Conservatory", "Billiard Room",
+									 "Library", "Study"}; //Reference with enum
+
 enum Card
 {
 	MISSSCARLET, COLONELMUSTARD, MRSWHITE, REVERENDGREEN, MRSPEACOCK, PROFESSORPLUM, DAGGER, CANDLESTICK, REVOLVER, ROPE, LEADPIPE, SPANNER,
 	HALL, LOUNGE, DININGROOM, KITCHEN, BALLROOM, CONSERVATORY, BILLIARDROOM, LIBRARY, STUDY, END
 };
+
+ostream& operator<< (ostream& stream, Card c) { return stream << cardNames[c]; };
 
 int numPossible(const vector<bool>& stuff)
 {
