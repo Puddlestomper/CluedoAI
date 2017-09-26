@@ -415,10 +415,14 @@ struct GameEndAction : public MoveAction
 
 struct QueryAction : public Action
 {
-	Card room, weapon, suspect;
+	Card room = (Card)21, weapon = (Card)21, suspect = (Card)21;
 	
 	bool perform() override
 	{
+		if (suspect == 21) return false;
+		else if (weapon == 21) return false;
+		else if (room == 21) return false;
+
 		cout << "I think it was " << suspect << " in the " << room << " using a " << weapon << "\n";
 
 		//Check who shows what
@@ -660,9 +664,7 @@ QueryAction getQuery()
 {
 	QueryAction qa;
 	vector<bool> weapons = answer->posWeapons();
-	vector<Card> myWeapons = mee->handWeapons();
 	vector<bool> suspects = answer->posSuspects();
-	vector<Card> mySuspects = mee->handSuspects();
 
 	qa.room = (Card)findPos(pos);
 
@@ -678,15 +680,19 @@ QueryAction getQuery()
 		qa.weapon = (Card)(max + 6);
 	}
 	else if  (openn->handWeapons().size() > 0) qa.weapon = openn->handWeapons()[rand() % openn->handWeapons().size()];
-	else if (myWeapons.size() > 0) qa.weapon = myWeapons[rand() % myWeapons.size()];
-	/*else
+	else
 	{
-		for (int i = 1; i < players->size(); ++i)
+		for (int i = 0; i < players->size(); ++i)
 		{
-			if (players->at((myIndex - i) % players->size()).handWeapons().size() > 0);l
+			Player* cur = &players->at((myIndex - i) % players->size());
+			if (cur->handWeapons().size() > 0)
+			{
+				qa.weapon = cur->handWeapons()[rand() % cur->handWeapons().size()];
+				break;
+			}
 		}
-	}*/
-	else qa.weapon = (Card)(rand() % 6 + 6);
+	}
+	if(qa.weapon == 21) qa.weapon = (Card)(rand() % 6 + 6);
 
 	if (numPossible(suspects) > 1)
 	{
@@ -700,8 +706,19 @@ QueryAction getQuery()
 		qa.suspect = (Card)max;
 	}
 	else if (openn->handSuspects().size() > 0) qa.suspect = openn->handSuspects()[rand() % openn->handSuspects().size()];
-	else if (mySuspects.size() > 0) qa.suspect = mySuspects[rand() % mySuspects.size()];
-	else qa.suspect = (Card)(rand() % 6);
+	else
+	{
+		for (int i = 0; i < players->size(); ++i)
+		{
+			Player* cur = &players->at((myIndex - i) % players->size());
+			if (cur->handSuspects().size() > 0)
+			{
+				qa.weapon = cur->handSuspects()[rand() % cur->handSuspects().size()];
+				break;
+			}
+		}
+	}
+	if (qa.suspect == 21) qa.weapon = (Card)(rand() % 6);
 
 	return qa;
 }
