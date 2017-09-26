@@ -73,10 +73,10 @@ public:
 	string name;
 	short character = -1;
 
-	bool operator==(const Player& p) const { return name == p.name; }
+	bool operator== (const Player& p) const { return name == p.name; }
 	
 	//Is it still possible for this player to have this card?
-	bool cardPossible(const short& c) { return possible[c]; }
+	bool cardPossible(const Card& c) { return possible[c]; }
 	
 	//Does the player's hand contain a certain card?
 	bool handContains(const Card& c) const
@@ -152,7 +152,7 @@ public:
 	}
 
 	//Add a card to the player's hand and makes it impossible for any other player to have it in his hand
-	bool addHand(const short& c, const bool& combo)
+	bool addHand(const Card& c, const bool& combo)
 	{
 		if (!handContains((Card) c) && !handFull() && possible[c])
 		{
@@ -172,7 +172,7 @@ public:
 	{
 		if (!handFull())
 		{
-			for (int i = 0; i < 21; ++i) addHand(i, false);
+			for (int i = 0; i < 21; ++i) addHand((Card)i, false);
 			combos.clear();
 		}
 	}
@@ -185,7 +185,7 @@ public:
 	}
 	
 	//Set that it is impossible for the player to have a certain card
-	void impossible(const short& n)
+	void impossible(const Card& n)
 	{
 		if (!handFull())
 		{
@@ -203,7 +203,7 @@ public:
 				break;
 			}
 			
-			if (answerCard) answer->addHand(n, false);
+			if (answerCard) answer->addHand((Card)n, false);
 
 			for(Combination c : combos) c.impossible((Card)n);
 			updateCombos();
@@ -316,10 +316,10 @@ void updateAnswer()
 	//Suspect
 	if (!suspFound && numPossible(answer->posSuspects()) == 1)
 	{
-		for (int i = MISSSCARLET; i < DAGGER; ++i) if (answer->cardPossible(i))
+		for (int i = MISSSCARLET; i < DAGGER; ++i) if (answer->cardPossible((Card)i))
 		{
 			current = i;
-			answer->addHand(current, false);
+			answer->addHand((Card)current, false);
 			suspFound = true;
 			cout << "Found Suspect!\n";
 		}
@@ -328,10 +328,10 @@ void updateAnswer()
 	//Weapon
 	if (!wepFound && numPossible(answer->posWeapons()) == 1)
 	{
-		for (int i = DAGGER; i < HALL; ++i) if (answer->cardPossible(i))
+		for (int i = DAGGER; i < HALL; ++i) if (answer->cardPossible((Card)i))
 		{
 			current = i;
-			answer->addHand(current, false);
+			answer->addHand((Card)current, false);
 			wepFound = true;
 			cout << "Found Weapon!\n";
 		}
@@ -340,10 +340,10 @@ void updateAnswer()
 	//Room
 	if (!roomFound && numPossible(answer->posRooms()) == 1)
 	{
-		for (int i = HALL; i < END; ++i) if (answer->cardPossible(i))
+		for (int i = HALL; i < END; ++i) if (answer->cardPossible((Card)i))
 		{
 			current = i;
-			answer->addHand(current, false);
+			answer->addHand((Card)current, false);
 			roomFound = true;
 			cout << "Found Room!\n";
 		}
@@ -438,7 +438,7 @@ struct QueryAction : public Action
 				short scard;
 				cout << "What card is he showing? ";
 				cin >> scard;
-				answering.addHand(scard, false);
+				answering.addHand((Card)scard, false);
 				break;
 			}
 			else
@@ -938,7 +938,7 @@ int main()
 			cout << "Enter the number of the public card:\n";
 			short scard;
 			cin >> scard;
-			while (!open.addHand(scard, false))
+			while (!open.addHand((Card)scard, false))
 			{
 				cout << "This is not a valid card! Enter a different card:\n";
 				cin >> scard;
@@ -954,7 +954,7 @@ int main()
 	{
 		short scard;
 		cin >> scard;
-		while (!mee->addHand(scard, false))
+		while (!mee->addHand((Card)scard, false))
 		{
 			cout << "This is not a valid card! Enter a different card:\n";
 			cin >> scard;
