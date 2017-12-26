@@ -31,12 +31,14 @@ static const string cardNames[21] = {"Miss Scarlet", "Colonel Mustard", "Mrs Whi
 									 "Revolver", "Rope", "Lead Pipe", "Spanner", "Hall", "Lounge", "Dining Room", "Kitchen", "Ball Room", "Conservatory", "Billiard Room",
 									 "Library", "Study"}; //Reference with enum
 
+//The Card enum contains all the cards that are in the game as well as a representaion for the final room which doesn't have a card
 enum Card
 {
 	MISSSCARLET, COLONELMUSTARD, MRSWHITE, REVERENDGREEN, MRSPEACOCK, PROFESSORPLUM, DAGGER, CANDLESTICK, REVOLVER, ROPE, LEADPIPE, SPANNER,
 	HALL, LOUNGE, DININGROOM, KITCHEN, BALLROOM, CONSERVATORY, BILLIARDROOM, LIBRARY, STUDY, END
 };
 
+//This operator allows the printing of the cards with their names instead of their enum value
 ostream& operator<< (ostream& stream, Card c) { return stream << cardNames[c]; };
 
 int numPossible(const vector<bool>& stuff)
@@ -64,10 +66,43 @@ struct Combination
 		if (n != -1) combination.erase(combination.begin() + n);
 	}
 
-	Combination(vector<Card>& combination)
+	Combination(const vector<Card>& combination)
 		: combination(combination) {}
 };
 
+//The Clue struct checks if certain booleans are in a certain state and then acts if they are
+struct Clue
+{
+	const vector<Card> vars; //Variables to check
+	const vector<bool> nots; //Whether they should be inverted
+	const bool addHand; //Whether the card should be added to the host's hand or made impossible
+	const Card card; //The card
+	Player& host; //The host
+	
+	//Go through all variables, check if they are true and respond appropriately if they are
+	bool check()
+	{
+		//Check if all variables are true
+		for (short i = 0; i < vars.size(); ++i)
+		{
+			bool var = host.cardPossible(vars[i]);
+			if (nots[i]) var = !var;
+
+			if (!var) return false;
+		}
+
+		//Either add the card in the players hand or make it impossible for the player to have the card
+		if (addHand) host.addHand(card, true);
+		else host.impossible(card);
+
+		return true;
+	}
+	
+	Clue(const vector<Card>& variables, vector<bool>& nots, const bool& addHand, const Card& card, Player& host)
+		: vars(variables), nots(nots), addHand(addHand), card(card), host(host) {}
+};
+
+//The Player struct handles tracking the player's hand and which cards are still possible for the player to have in their hand
 struct Player
 {
 private:
@@ -282,6 +317,7 @@ public:
 	Player() {}
 };
 
+//The Node struct is used to represent the squares on the board as nodes in a graph
 struct Node
 {
 	vector<Node*> neighbours;
@@ -361,6 +397,7 @@ struct Action
 	virtual bool perform() = 0;
 };
 
+//The MoveAction struct handles moving the player
 struct MoveAction : public Action
 {
 	//Node to move to and path to take
@@ -401,6 +438,7 @@ struct MoveAction : public Action
 		: path(path) {};
 };
 
+//The GameEndAction struct handles moving to the final square and making the accusation
 struct GameEndAction : public MoveAction
 {
 	MoveAction endMA;
@@ -419,6 +457,7 @@ struct GameEndAction : public MoveAction
 		: endMA(pathTo(END)) {}
 };
 
+//The QueryAction struct handles making queries
 struct QueryAction : public Action
 {
 	Card room = (Card)21, weapon = (Card)21, suspect = (Card)21;
@@ -458,6 +497,7 @@ struct QueryAction : public Action
 	}
 };
 
+//The CreateBoard method creates the board vector
 vector<Node> CreateBoard()
 {
 	cout << "Creating Board!\n";
@@ -756,8 +796,9 @@ void answerQuery(const short& index)
 
 		if (query[0] == mee->character)
 		{
+			short prevpos = pos;
 			pos = rooms[query[2] - 12];
-			moved = true;
+			if(pos != prevpos) moved = true;
 			while (actionQueue->size() > 0) actionQueue->pop();
 		}
 
@@ -894,6 +935,16 @@ int main()
 	string name;
 	cin >> name;
 
+	/*
+	if (DEBUG)
+	{
+		cout << "Name: " << name << "\n";
+		cout << "Characters:\n";
+		for (int i = 0; i < lplayers.size(); ++i) cout << lplayers[i].name << "\n";
+		cout << "END\n";
+	}
+	*/
+
 	for (int i = 0; i < lplayers.size(); ++i) if (name == lplayers[i].name)
 	{
 		short meIndex = -1;
@@ -929,7 +980,9 @@ int main()
 	for (Player &i : lplayers)
 	{
 		i.setHandSize(hand);
-		cout << i.name << "\n";
+		cout << i.name;
+		if (DEBUG) cout << ": " << i.character;
+		cout << "\n";
 	}
 	cout << "\n";
 	Player open("OpenCards", opencards);

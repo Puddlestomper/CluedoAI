@@ -28,4 +28,4 @@ Each card in the game is assigned a number in the range 0-20 as indicated in the
 19.	Library
 20.	Study
 
-Similiary every square on the board is also numbered. A resource will be included showing the board with all the squares being numbered.
+Similiary every square on the board is also numbered. A resource(pdf) is included showing the board with all the squares being numbered.
