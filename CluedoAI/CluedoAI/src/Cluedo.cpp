@@ -70,38 +70,6 @@ struct Combination
 		: combination(combination) {}
 };
 
-//The Clue struct checks if certain booleans are in a certain state and then acts if they are
-struct Clue
-{
-	const vector<Card> vars; //Variables to check
-	const vector<bool> nots; //Whether they should be inverted
-	const bool addHand; //Whether the card should be added to the host's hand or made impossible
-	const Card card; //The card
-	Player& host; //The host
-	
-	//Go through all variables, check if they are true and respond appropriately if they are
-	bool check()
-	{
-		//Check if all variables are true
-		for (short i = 0; i < vars.size(); ++i)
-		{
-			bool var = host.cardPossible(vars[i]);
-			if (nots[i]) var = !var;
-
-			if (!var) return false;
-		}
-
-		//Either add the card in the players hand or make it impossible for the player to have the card
-		if (addHand) host.addHand(card, true);
-		else host.impossible(card);
-
-		return true;
-	}
-	
-	Clue(const vector<Card>& variables, vector<bool>& nots, const bool& addHand, const Card& card, Player& host)
-		: vars(variables), nots(nots), addHand(addHand), card(card), host(host) {}
-};
-
 //The Player struct handles tracking the player's hand and which cards are still possible for the player to have in their hand
 struct Player
 {
@@ -315,6 +283,38 @@ public:
 		: name(name) {}
 
 	Player() {}
+};
+
+//The Clue struct checks if certain booleans are in a certain state and then acts if they are
+struct Clue
+{
+	const vector<Card> vars; //Variables to check
+	const vector<bool> nots; //Whether they should be inverted
+	const bool addHand; //Whether the card should be added to the host's hand or made impossible
+	const Card card; //The card
+	Player& host; //The host
+
+				  //Go through all variables, check if they are true and respond appropriately if they are
+	bool check()
+	{
+		//Check if all variables are true
+		for (short i = 0; i < vars.size(); ++i)
+		{
+			bool var = host.cardPossible(vars[i]);
+			if (nots[i]) var = !var;
+
+			if (!var) return false;
+		}
+
+		//Either add the card in the players hand or make it impossible for the player to have the card
+		if (addHand) host.addHand(card, true);
+		else host.impossible(card);
+
+		return true;
+	}
+
+	Clue(const vector<Card>& variables, vector<bool>& nots, const bool& addHand, const Card& card, Player& host)
+		: vars(variables), nots(nots), addHand(addHand), card(card), host(host) {}
 };
 
 //The Node struct is used to represent the squares on the board as nodes in a graph
@@ -951,13 +951,13 @@ int main()
 		for (int j = 0; j < lplayers.size(); ++j)
 		{
 			Player& p = lplayers[(i + j) % lplayers.size()];
-			if (meIndex == -1 && p.name == "AdriBot")
+			if (p.name == "AdriBot")
 			{
 				meIndex = j;
 				continue;
 			}
 			//If the loop is past me make their character values larger than mine
-			if (j > meIndex) p.character = lplayers[(i + meIndex) % lplayers.size()].character + j - meIndex;
+			if (meIndex != -1) p.character = lplayers[(i + meIndex) % lplayers.size()].character + j - meIndex;
 			else p.character = j;
 		}
 		break;
