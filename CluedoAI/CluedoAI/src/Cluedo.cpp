@@ -408,7 +408,7 @@ struct MoveAction : public Action
 	//Move as far on the path as possible
 	bool perform() override
 	{
-		if (DEBUG) cout << "[DEBUG] MoveAction.perform() Called!\n";
+		if (DEBUG) cout << "\n[DEBUG] MoveAction.perform() Called!\n";
 		
 		if (path.size() == 0)
 		{
@@ -447,6 +447,8 @@ struct GameEndAction : public MoveAction
 
 	bool perform() override
 	{
+		if (DEBUG) cout << "\n[DEBUG] GameEndAction.perform() Called!\n";
+
 		if (!endMA.perform()) return false;
 		vector<Card> hand = answer->getHand();
 
@@ -469,6 +471,8 @@ struct QueryAction : public Action
 	
 	bool perform() override
 	{
+		if (DEBUG) cout << "\n[DEBUG] QueryAction.perform() Called!\n";
+		
 		if (suspect == 21 || weapon == 21 || room == 21) return false;
 
 		cout << "I think it was " << suspect << " in the " << room << " using a " << weapon << "\n";
@@ -617,6 +621,8 @@ vector<Node*> pathTo(const short& position)
 
 MoveAction getMove(const short& roll)
 {
+	if (DEBUG) cout << "\n[DEBUG] getMove(const short& roll) Called!\n";
+	
 	updateAnswer();
 	
 	//BFS
@@ -711,6 +717,8 @@ MoveAction getMove(const short& roll)
 
 QueryAction getQuery()
 {
+	if (DEBUG) cout << "\n[DEBUG] getQuery() Called!\n";
+	
 	QueryAction qa;
 	vector<bool> weapons = answer->posWeapons();
 	vector<bool> suspects = answer->posSuspects();
