@@ -299,6 +299,8 @@ struct Clue
 				  //Go through all variables, check if they are true and respond appropriately if they are
 	bool check()
 	{
+		if (DEBUG) cout << "\n[DEBUG] Clue.check() Called!\n";
+		
 		//Check if all variables are true
 		for (short i = 0; i < vars.size(); ++i)
 		{
@@ -775,13 +777,15 @@ QueryAction getQuery()
 			}
 		}
 	}
-	if (qa.suspect == 21) qa.weapon = (Card)(rand() % 6);
+	if (qa.suspect == 21) qa.suspect = (Card)(rand() % 6);
 
 	return qa;
 }
 
 void answerQuery(const short& index)
 {
+	if (DEBUG) cout << "\n[DEBUG] answerQuery(const short& index) Called!\n";
+	
 	Player* p = &(*players)[index];
 
 	char input;
