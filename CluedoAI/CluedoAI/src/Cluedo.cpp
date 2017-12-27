@@ -210,7 +210,13 @@ public:
 				break;
 			}
 			
-			if (answerCard) answer->addHand((Card)n, false);
+			if (answerCard)
+			{
+				answer->addHand((Card)n, false);
+				if (n < DAGGER) for (short i = 0; i < DAGGER; ++i) if (i != n) answer->impossible((Card)n);
+				else if (n < HALL) for (short i = DAGGER; i < HALL; ++i) if (i != n) answer->impossible((Card)n);
+				else for (short i = HALL; i < END; ++i) if (i != n) answer->impossible((Card)n);
+			}
 
 			for(Combination c : combos) c.impossible((Card)n);
 			updateCombos();
