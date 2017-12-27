@@ -261,10 +261,8 @@ public:
 	}
 	
 	//The weapon cards in this person's hand
-	vector<Card> handWeapons()
+	vector<Card> handWeapons() const
 	{
-		sort(hand.begin(), hand.end());
-
 		vector<Card> weps;
 		for (Card c : hand) if (DAGGER <= c && c <= SPANNER) weps.emplace_back(c);
 		return weps;
@@ -341,7 +339,7 @@ struct Node
 	}
 };
 
-int findPos(const int& position)
+int findRoom(const int& position)
 {
 	for (int i = 0; i < rooms.size(); ++i) if (rooms[i] == position) return i + 12;
 	return -1;
@@ -422,7 +420,7 @@ struct MoveAction : public Action
 		for (int i = 0; i < roll; ++i)
 		{
 			temp = path.back();
-			if (DEBUG) cout << "Moving to square " << temp->index << "\n";
+			if (DEBUG) cout << "[DEBUG] Moving to square " << temp->index << "\n";
 			path.pop_back();
 			if (path.size() == 0)
 			{
@@ -433,7 +431,7 @@ struct MoveAction : public Action
 		}
 		cout << "Moved to square " << temp->index << "\n";
 		pos = temp->index;
-		return false;
+		return true;
 	}
 
 	MoveAction() {};
@@ -471,9 +469,7 @@ struct QueryAction : public Action
 	
 	bool perform() override
 	{
-		if (suspect == 21) return false;
-		else if (weapon == 21) return false;
-		else if (room == 21) return false;
+		if (suspect == 21 || weapon == 21 || room == 21) return false;
 
 		cout << "I think it was " << suspect << " in the " << room << " using a " << weapon << "\n";
 
@@ -719,7 +715,7 @@ QueryAction getQuery()
 	vector<bool> weapons = answer->posWeapons();
 	vector<bool> suspects = answer->posSuspects();
 
-	qa.room = (Card)findPos(pos);
+	qa.room = (Card)findRoom(pos);
 
 	if (numPossible(weapons) > 1)
 	{
@@ -781,17 +777,17 @@ void answerQuery(const short& index)
 	Player* p = &(*players)[index];
 
 	char input;
-	cout << "Is " << p->name << " going to query?(Y/N) ";
+	cout << "\nIs " << p->name << " going to query?(Y/N) ";
 	cin >> input;
 	if (input == 'Y')
 	{
 		short s1, s2, s3;
 
-		cout << "What is the first card he is asking for?(Suspect)";
+		cout << "What is the first card he is asking for?(Suspect) ";
 		cin >> s1;
-		cout << "What is the second card he is asking for?(Weapon)";
+		cout << "What is the second card he is asking for?(Weapon) ";
 		cin >> s2;
-		cout << "What is the third card he is asking for?(Room)";
+		cout << "What is the third card he is asking for?(Room) ";
 		cin >> s3;
 
 		Card c1 = (Card)s1;
@@ -1041,7 +1037,11 @@ int main()
 				else roll = 2 + rand() % 6 + rand() % 6;
 				cout << "Rolled " << roll << "\n";
 				actionQueue->push(getMove(roll));
-				if (actionQueue->front().perform()) getQuery().perform();
+				if (actionQueue->front().perform())
+				{
+					if (!getQuery().perform()) cout << "[ERROR] Performing query failed!\n";
+				}
+				else cout << "[ERROR] Performing move failed!\n";
 				actionQueue->pop();
 			}
 			else answerQuery(i);
