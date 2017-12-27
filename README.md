@@ -12,12 +12,12 @@ Each card in the game is assigned a number in the range 0-20 as indicated in the
 3. 	Reverend Green
 4.	Mrs Peacock
 5. 	Professor Plum 
-6.	Dagger
+6.	Dagger/Knife
 7.	Candlestick
 8.	Revolver
 9.	Rope
 10.	Lead Pipe
-11.	Spanner
+11.	Spanner/Wrench
 12.	Hall
 13.	Lounge
 14.	Dining Room

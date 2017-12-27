@@ -5,7 +5,7 @@
 #include <time.h>
 #include <iterator>
 
-#define DEBUG false
+#define DEBUG true
 
 using namespace std;
 
@@ -166,6 +166,7 @@ public:
 		if (!handContains((Card) c) && !handFull() && possible[c])
 		{
 			hand.emplace_back((Card) c);
+			sort(hand.begin(), hand.end());
 			if ( DEBUG ) cout << "[DEBUG] Added " << c << " to " << name << "'s hand!\n";
 			if(answer != this) answer->impossible(c);
 			for (Player& p : *players) if(&p != this) p.impossible(c);
@@ -176,27 +177,24 @@ public:
 		else return false;
 	}
 	
-	//Set the player's hand
+	//Set the player's hand to be all the cards he could possibly have
 	void setHand()
 	{
 		if (!handFull())
 		{
 			for (int i = 0; i < 21; ++i) addHand((Card)i, false);
+			sort(hand.begin(), hand.end());
 			combos.clear();
 		}
 	}
 
 	//Sort and get the player's hand
-	vector<Card> getHand() 
-	{ 
-		sort(hand.begin(), hand.end());
-		return hand; 
-	}
+	vector<Card> getHand() const { return hand; }
 	
 	//Set that it is impossible for the player to have a certain card
 	void impossible(const Card& n)
 	{
-		if (!handFull())
+		if (!handFull() && possible[n])
 		{
 			if (DEBUG) cout << "[DEBUG] " << n << " is impossible for " << name << "\n";
 			
@@ -454,7 +452,10 @@ struct GameEndAction : public MoveAction
 	}
 
 	GameEndAction()
-		: endMA(pathTo(END)) {}
+		: endMA(pathTo(END)) 
+	{
+		if (DEBUG) cout << "[DEBUG] GameEndAction created!\n";
+	}
 };
 
 //The QueryAction struct handles making queries
@@ -841,6 +842,14 @@ void answerQuery(const short& index)
 		}
 		if (answer->handFull()) while (actionQueue->size() > 0) actionQueue->pop();
 	}
+	else
+	{
+		/*
+		cout << "Is " << p->name << " going to make an accusation?(Y/N) ";
+		cin >> input;
+		*/
+		//Handle
+	}
 }
 
 bool sortPlayers(const Player& a, const Player& b) { return a.character < b.character; };
@@ -934,16 +943,6 @@ int main()
 	cout << "Who is going first? ";
 	string name;
 	cin >> name;
-
-	/*
-	if (DEBUG)
-	{
-		cout << "Name: " << name << "\n";
-		cout << "Characters:\n";
-		for (int i = 0; i < lplayers.size(); ++i) cout << lplayers[i].name << "\n";
-		cout << "END\n";
-	}
-	*/
 
 	for (int i = 0; i < lplayers.size(); ++i) if (name == lplayers[i].name)
 	{
