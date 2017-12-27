@@ -223,7 +223,7 @@ public:
 		}
 	}
 
-	//The possible rooms
+	//The rooms' possibilities
 	vector<bool> posRooms() const
 	{
 		vector<bool> rooms;
@@ -232,7 +232,7 @@ public:
 		return rooms;
 	}
 
-	//The possible suspects
+	//The suspects' possibilities
 	vector<bool> posSuspects() const
 	{
 		vector<bool> susps;
@@ -241,7 +241,7 @@ public:
 		return susps;
 	}
 
-	//The possible weapons
+	//The weapons' possibilities
 	vector<bool> posWeapons() const
 	{
 		vector<bool> weps;
