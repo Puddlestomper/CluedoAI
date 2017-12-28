@@ -32,8 +32,6 @@ static const string cardNames[21] = {"Miss Scarlet", "Colonel Mustard", "Mrs Whi
 									 "Revolver", "Rope", "Lead Pipe", "Spanner", "Hall", "Lounge", "Dining Room", "Kitchen", "Ball Room", "Conservatory", "Billiard Room",
 									 "Library", "Study"}; //Reference with enum
 
-
-
 //This operator allows the printing of the cards with their names instead of their enum value
 ostream& operator<< (ostream& stream, Card c) { return stream << cardNames[c]; };
 
@@ -198,6 +196,7 @@ struct QueryAction : public Action
 	{
 		if (DEBUG) cout << "\n[DEBUG] QueryAction.perform() Called!\n";
 		
+		if (room == -1) return true;
 		if (suspect == 21 || weapon == 21 || room == 21) return false;
 
 		cout << "I think it was " << suspect << " in the " << room << " using a " << weapon << "\n";

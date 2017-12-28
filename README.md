@@ -1,7 +1,7 @@
 # CluedoAI
 A C++ program that plays Cluedo.
 
-When launching it you just follow the instructions as they come on the console and give input as required.
+When launching it you just follow the instructions as they appear on the console and give input as required.
 
 NOTE:
 

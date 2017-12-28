@@ -17,4 +17,6 @@ enum Card
 	HALL, LOUNGE, DININGROOM, KITCHEN, BALLROOM, CONSERVATORY, BILLIARDROOM, LIBRARY, STUDY, END
 };
 
+ostream& operator<< (ostream& stream, Card c);
+
 int numPossible(const vector<bool>& stuff);
