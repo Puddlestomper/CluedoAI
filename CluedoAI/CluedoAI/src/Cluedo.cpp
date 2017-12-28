@@ -1,13 +1,13 @@
 #include <iostream>
-#include <vector>
 #include <string>
+#include <vector>
 #include <queue>
 #include <time.h>
 #include <iterator>
 
-#define DEBUG true
-
-using namespace std;
+#include "Cluedo.h"
+#include "Clue.h"
+#include "Player.h"
 
 struct Player;
 struct MoveAction;
@@ -18,6 +18,7 @@ static const vector<int> rooms = { 57, 65, 68, 14, 18, 31, 37, 46, 52, 121 }; //
 
 Player* answer, *mee, *openn;
 vector<Player>* players;
+
 queue<MoveAction>* actionQueue;
 vector<Node> board;
 
@@ -31,12 +32,7 @@ static const string cardNames[21] = {"Miss Scarlet", "Colonel Mustard", "Mrs Whi
 									 "Revolver", "Rope", "Lead Pipe", "Spanner", "Hall", "Lounge", "Dining Room", "Kitchen", "Ball Room", "Conservatory", "Billiard Room",
 									 "Library", "Study"}; //Reference with enum
 
-//The Card enum contains all the cards that are in the game as well as a representaion for the final room which doesn't have a card
-enum Card
-{
-	MISSSCARLET, COLONELMUSTARD, MRSWHITE, REVERENDGREEN, MRSPEACOCK, PROFESSORPLUM, DAGGER, CANDLESTICK, REVOLVER, ROPE, LEADPIPE, SPANNER,
-	HALL, LOUNGE, DININGROOM, KITCHEN, BALLROOM, CONSERVATORY, BILLIARDROOM, LIBRARY, STUDY, END
-};
+
 
 //This operator allows the printing of the cards with their names instead of their enum value
 ostream& operator<< (ostream& stream, Card c) { return stream << cardNames[c]; };
@@ -47,279 +43,6 @@ int numPossible(const vector<bool>& stuff)
 	for (bool b : stuff) if (b) counter++;
 	return counter;
 }
-
-struct Combination
-{
-	vector<Card> combination;
-
-	short size() const { return combination.size(); }
-
-	short contains(const Card& c) const
-	{
-		for (int i = 0; i < combination.size(); ++i) if (combination[i] == c) return i;
-		return -1;
-	}
-
-	void impossible(const Card& c)
-	{
-		short n = this->contains(c);
-		if (n != -1) combination.erase(combination.begin() + n);
-	}
-
-	Combination(const vector<Card>& combination)
-		: combination(combination) {}
-};
-
-//The Player struct handles tracking the player's hand and which cards are still possible for the player to have in their hand
-struct Player
-{
-private:
-	vector<Card> hand;
-	vector<bool> possible = {true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true};
-	vector<Combination> combos;
-	short handsize;
-public:
-	string name;
-	short character = -1;
-
-	bool operator== (const Player& p) const { return name == p.name; }
-	
-	//Is it still possible for this player to have this card?
-	bool cardPossible(const Card& c) { return possible[c]; }
-	
-	//Does the player's hand contain a certain card?
-	bool handContains(const Card& c) const
-	{
-		for (Card x : hand) if (x == c) return true;
-		return false;
-	}
-
-	//Is the player's hand full?
-	bool handFull() const
-	{
-		if (hand.size() >= handsize) return true;
-		return false;
-	}
-
-	//Check if any combos have been fulfilled and update them
-	void updateCombos()
-	{
-		for (vector<Combination>::iterator i = combos.begin(); i != combos.end(); ++i)
-		{
-			bool shouldCont = false;
-			
-			if (i->size() == 1)
-			{
-				addHand(i->combination[0], true);
-				i = combos.erase(i) - 1;
-				continue;
-			}
-
-			for (int j = 0; j < i->combination.size(); ++j)
-			{
-				if (handContains(i->combination[j]))
-				{
-					i = combos.erase(i) - 1;
-					shouldCont = true;
-					break;
-				}
-				if (!possible[i->combination[j]])
-				{
-					i->impossible(i->combination[j]);
-					j--;
-				}
-			}
-			if (shouldCont) continue;
-
-			if (i->size() < 1)
-			{
-				i = combos.erase(i) - 1;
-				continue;
-			}
-		}
-	}
-
-	//Set the hand size
-	void setHandSize(const short& size)
-	{
-		handsize = size;
-		hand.reserve(size);
-	}
-
-	//Add a combination to a player
-	void addCombo(Combination& c)
-	{
-		for (int i = 0; i < players->size(); ++i)
-		{
-			Player* p = &players->at(i);
-			if (p == this) continue;
-			for (Card& card : p->getHand()) if (c.contains(card)) c.impossible(card);
-		}
-		
-		combos.emplace_back(c);
-		updateCombos();
-	}
-
-	//Add a card to the player's hand and makes it impossible for any other player to have it in his hand
-	bool addHand(const Card& c, const bool& combo)
-	{
-		if (!handContains((Card) c) && !handFull() && possible[c])
-		{
-			hand.emplace_back((Card) c);
-			sort(hand.begin(), hand.end());
-			if ( DEBUG ) cout << "[DEBUG] Added " << c << " to " << name << "'s hand!\n";
-			if(answer != this) answer->impossible(c);
-			for (Player& p : *players) if(&p != this) p.impossible(c);
-			if (handFull()) for (int i = 0; i < possible.size(); ++i) if (!handContains((Card)i)) possible[i] = false;
-			if(!combo) for(Player& p : *players) p.updateCombos();
-			return true;
-		}
-		else return false;
-	}
-	
-	//Set the player's hand to be all the cards he could possibly have
-	void setHand()
-	{
-		if (!handFull())
-		{
-			for (int i = 0; i < 21; ++i) addHand((Card)i, false);
-			sort(hand.begin(), hand.end());
-			combos.clear();
-		}
-	}
-
-	//Sort and get the player's hand
-	vector<Card> getHand() const { return hand; }
-	
-	//Set that it is impossible for the player to have a certain card
-	void impossible(const Card& n)
-	{
-		if (!handFull() && possible[n])
-		{
-			if (DEBUG) cout << "[DEBUG] " << n << " is impossible for " << name << "\n";
-			
-			possible[n] = false;
-			short size = numPossible(possible);
-			if (size == handsize) setHand();
-
-			//If card is impossible for all players add it to the answer
-			bool answerCard = true;
-			for (Player& p : *players) if (p.cardPossible(n))
-			{
-				answerCard = false;
-				break;
-			}
-			
-			if (answerCard)
-			{
-				answer->addHand((Card)n, false);
-				if (n < DAGGER) for (short i = 0; i < DAGGER; ++i) if (i != n) answer->impossible((Card)n);
-				else if (n < HALL) for (short i = DAGGER; i < HALL; ++i) if (i != n) answer->impossible((Card)n);
-				else for (short i = HALL; i < END; ++i) if (i != n) answer->impossible((Card)n);
-			}
-
-			for(Combination c : combos) c.impossible((Card)n);
-			updateCombos();
-		}
-	}
-
-	//The rooms' possibilities
-	vector<bool> posRooms() const
-	{
-		vector<bool> rooms;
-		rooms.reserve(END - HALL);
-		for (int i = HALL; i < END; ++i) rooms.emplace_back(possible[i]);
-		return rooms;
-	}
-
-	//The suspects' possibilities
-	vector<bool> posSuspects() const
-	{
-		vector<bool> susps;
-		susps.reserve(6);
-		for (int i = MISSSCARLET; i < DAGGER; ++i) susps.emplace_back(possible[i]);
-		return susps;
-	}
-
-	//The weapons' possibilities
-	vector<bool> posWeapons() const
-	{
-		vector<bool> weps;
-		weps.reserve(6);
-		for (int i = DAGGER; i < HALL; ++i) weps.emplace_back(possible[i]);
-		return weps;
-	}
-
-	//THe suspect cards in this  person's hand
-	vector<Card> handSuspects()
-	{
-		sort(hand.begin(), hand.end());
-
-		vector<Card> susps;
-		for (Card c : hand) if (MISSSCARLET <= c && c <= PROFESSORPLUM) susps.emplace_back(c);
-		return susps;
-	}
-	
-	//The weapon cards in this person's hand
-	vector<Card> handWeapons() const
-	{
-		vector<Card> weps;
-		for (Card c : hand) if (DAGGER <= c && c <= SPANNER) weps.emplace_back(c);
-		return weps;
-	}
-
-	//The room cards in this player's hand
-	vector<Card> handRooms()
-	{
-		sort(hand.begin(), hand.end());
-
-		vector<Card> rooms;
-		for (Card c : hand) if (HALL <= c && c <= SPANNER) rooms.emplace_back(c);
-		return rooms;
-	}
-
-	Player(string name, short handsize) 
-		: name(name), handsize(handsize) {}
-
-	Player(string name) 
-		: name(name) {}
-
-	Player() {}
-};
-
-//The Clue struct checks if certain booleans are in a certain state and then acts if they are
-struct Clue
-{
-	const vector<Card> vars; //Variables to check
-	const vector<bool> nots; //Whether they should be inverted
-	const bool addHand; //Whether the card should be added to the host's hand or made impossible
-	const Card card; //The card
-	Player& host; //The host
-
-				  //Go through all variables, check if they are true and respond appropriately if they are
-	bool check()
-	{
-		if (DEBUG) cout << "\n[DEBUG] Clue.check() Called!\n";
-		
-		//Check if all variables are true
-		for (short i = 0; i < vars.size(); ++i)
-		{
-			bool var = host.cardPossible(vars[i]);
-			if (nots[i]) var = !var;
-
-			if (!var) return false;
-		}
-
-		//Either add the card in the players hand or make it impossible for the player to have the card
-		if (addHand) host.addHand(card, true);
-		else host.impossible(card);
-
-		return true;
-	}
-
-	Clue(const vector<Card>& variables, vector<bool>& nots, const bool& addHand, const Card& card, Player& host)
-		: vars(variables), nots(nots), addHand(addHand), card(card), host(host) {}
-};
 
 //The Node struct is used to represent the squares on the board as nodes in a graph
 struct Node
@@ -497,9 +220,9 @@ struct QueryAction : public Action
 			}
 			else
 			{
-				answering.impossible(suspect);
-				answering.impossible(weapon);
-				answering.impossible(room);
+				answering.impossible(suspect, false);
+				answering.impossible(weapon, false);
+				answering.impossible(room, false);
 			}
 		}
 		return true;
@@ -782,7 +505,7 @@ QueryAction getQuery()
 	return qa;
 }
 
-void answerQuery(const short& index)
+bool answerQuery(const short& index)
 {
 	if (DEBUG) cout << "\n[DEBUG] answerQuery(const short& index) Called!\n";
 	
@@ -836,34 +559,79 @@ void answerQuery(const short& index)
 			}
 
 			cout << "Did " << answering->name << " show a card?(Y/N)";
-			char showed;
-			cin >> showed;
-			while (showed != 'Y' && showed != 'N')
+			cin >> input;
+			while (input != 'Y' && input != 'N')
 			{
 				cout << "\nPlease enter a Y or a N. ";
-				cin >> showed;
+				cin >> input;
 			}
-			if (showed == 'Y')
+
+			if (input == 'Y')
 			{
-				Combination c(query);
-				answering->addCombo(c);
+				answering->addClue({c1, c2}, vector<bool>{true, true}, true, c3);
+				answering->addClue({c1, c3}, vector<bool>{true, true}, true, c2);
+				answering->addClue({c2, c3}, vector<bool>{true, true}, true, c1);
 				break;
 			}
 			else
 			{
-				for (Card c : query) answering->impossible(c);
+				for (Card c : query) answering->impossible(c, false);
 			}
 		}
 		if (answer->handFull()) while (actionQueue->size() > 0) actionQueue->pop();
 	}
 	else
 	{
-		/*
+
 		cout << "Is " << p->name << " going to make an accusation?(Y/N) ";
 		cin >> input;
-		*/
-		//Handle
+		while (input != 'Y' && input != 'N')
+		{
+			cout << "\nPlease enter a Y or a N. ";
+			cin >> input;
+		}
+		
+		if (input == 'Y')
+		{
+			short s1, s2, s3;
+
+			cout << "Who is he accusing?(Suspect) ";
+			cin >> s1;
+			cout << "How does he say it was done?(Weapon) ";
+			cin >> s2;
+			cout << "Where does he claim it happened?(Room) ";
+			cin >> s3;
+
+			cout << "Is he right?(Y/N) ";
+			cin >> input;
+			while (input != 'Y' && input != 'N')
+			{
+				cout << "\nPlease enter a Y or a N. ";
+				cin >> input;
+			}
+
+			if (input == 'Y')
+			{
+				running = false;
+				cout << "Congratz to " << p->name << " for winning!\n";
+				return false;
+			}
+
+			Card c1 = (Card)s1;
+			Card c2 = (Card)s2;
+			Card c3 = (Card)s3;
+
+			vector<Card> accusation = { c1, c2, c3 };
+			sort(accusation.begin(), accusation.end());
+
+			answer->addClue({c1, c2}, vector<bool>{false, false}, false, c3);
+			answer->addClue({c1, c3}, vector<bool>{false, false}, false, c2);
+			answer->addClue({c2, c3}, vector<bool>{false, false}, false, c1);
+
+			cout << "Better luck next time!\n";
+		}
 	}
+	return true;
 }
 
 bool sortPlayers(const Player& a, const Player& b) { return a.character < b.character; };
@@ -1056,7 +824,7 @@ int main()
 				else cout << "[ERROR] Performing move failed!\n";
 				actionQueue->pop();
 			}
-			else answerQuery(i);
+			else if (!answerQuery(i)) break;
 		}
 	}
 
