@@ -110,22 +110,22 @@ void Player::impossible(const Card& n, const bool& clue)
 				if (n < DAGGER)
 				{
 					for (short i = MISSSCARLET; i < DAGGER; ++i) if (i != n) answer->impossible((Card)n, false);
-					if (DEBUG) cout << "[DEBUG] Suspect found in Player::impossible for " << name << " with " << n << "\n";
-					else cout << "\nFound Suspect!\n";
+					if (DEBUG) cout << "[DEBUG] " << n << " found to be the suspect in Player::impossible for " << name << " with " << n << "\n";
+					else cout << "\n" << n << " is the suspect!\n";
 					suspFound = true;
 				}
 				else if (n < HALL)
 				{
 					for (short i = DAGGER; i < HALL; ++i) if (i != n) answer->impossible((Card)n, false);
-					if (DEBUG) cout << "\n[DEBUG] Weapon found in Player::impossible for " << name << " with " << n << "\n";
-					else cout << "\nFound Weapon!\n";
+					if (DEBUG) cout << "[DEBUG] " << n << " found to be the weapon in Player::impossible for " << name << " with " << n << "\n";
+					else cout << "\n" << n << " is the weapon!\n";
 					wepFound = true;
 				}
 				else
 				{
 					for (short i = HALL; i < END; ++i) if (i != n) answer->impossible((Card)n, false);
-					if (DEBUG) cout << "\n[DEBUG] Room found in Player::impossible for " << name << " with " << n << "\n";
-					else cout << "\nFound Room!\n";
+					if (DEBUG) cout << "[DEBUG] " << n << " found to be the room in Player::impossible for " << name << " with " << n << "\n";
+					else cout << "\n" << n << " is the room!\n";
 					roomFound = true;
 				}
 			}

@@ -85,7 +85,7 @@ void updateAnswer()
 		{
 			answer->addHand((Card)i, false);
 			suspFound = true;
-			cout << "Found Suspect!\n";
+			cout << "\n" << i << " is the suspect!\n";
 		}
 	}
 
@@ -96,7 +96,7 @@ void updateAnswer()
 		{
 			answer->addHand((Card)i, false);
 			wepFound = true;
-			cout << "Found Weapon!\n";
+			cout << "\n" << i << " is the weapon!\n";
 		}
 	}
 
@@ -107,7 +107,7 @@ void updateAnswer()
 		{
 			answer->addHand((Card)i, false);
 			roomFound = true;
-			cout << "Found Room!\n";
+			cout << "\n" << i << " is the room!\n";
 		}
 	}
 }
