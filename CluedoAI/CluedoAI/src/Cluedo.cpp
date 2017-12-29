@@ -24,7 +24,7 @@ vector<Node> board;
 
 short pos, roll, myIndex;
 
-bool moved = false, running = true, bool suspFound = false, wepFound = false, roomFound = false;
+bool moved = false, running = true, suspFound = false, wepFound = false, roomFound = false;
 
 vector<Node*> pathTo(const short& pos);
 
@@ -78,15 +78,12 @@ int cardScore(const Card& c)
 
 void updateAnswer()
 {
-	short current;
-
 	//Suspect
 	if (!suspFound && numPossible(answer->posSuspects()) == 1)
 	{
-		for (int i = MISSSCARLET; i < DAGGER; ++i) if (answer->cardPossible((Card)i))
+		for (short i = MISSSCARLET; i < DAGGER; ++i) if (answer->cardPossible((Card)i))
 		{
-			current = i;
-			answer->addHand((Card)current, false);
+			answer->addHand((Card)i, false);
 			suspFound = true;
 			cout << "Found Suspect!\n";
 		}
@@ -95,10 +92,9 @@ void updateAnswer()
 	//Weapon
 	if (!wepFound && numPossible(answer->posWeapons()) == 1)
 	{
-		for (int i = DAGGER; i < HALL; ++i) if (answer->cardPossible((Card)i))
+		for (short i = DAGGER; i < HALL; ++i) if (answer->cardPossible((Card)i))
 		{
-			current = i;
-			answer->addHand((Card)current, false);
+			answer->addHand((Card)i, false);
 			wepFound = true;
 			cout << "Found Weapon!\n";
 		}
@@ -107,10 +103,9 @@ void updateAnswer()
 	//Room
 	if (!roomFound && numPossible(answer->posRooms()) == 1)
 	{
-		for (int i = HALL; i < END; ++i) if (answer->cardPossible((Card)i))
+		for (short i = HALL; i < END; ++i) if (answer->cardPossible((Card)i))
 		{
-			current = i;
-			answer->addHand((Card)current, false);
+			answer->addHand((Card)i, false);
 			roomFound = true;
 			cout << "Found Room!\n";
 		}
@@ -346,8 +341,6 @@ vector<Node*> pathTo(const short& position)
 MoveAction getMove(const short& roll)
 {
 	if (DEBUG) cout << "\n[DEBUG] getMove(const short& roll) Called!\n";
-	
-	updateAnswer();
 	
 	//BFS
 	queue<Node*> q;
@@ -824,6 +817,7 @@ int main()
 				actionQueue->pop();
 			}
 			else if (!answerQuery(i)) break;
+			updateAnswer();
 		}
 	}
 
