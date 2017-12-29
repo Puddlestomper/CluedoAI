@@ -95,21 +95,40 @@ void Player::impossible(const Card& n, const bool& clue)
 		if (size == handsize) setHand();
 
 		//If card is impossible for all players add it to the answer
-		bool answerCard = true;
-		for (Player& p : *players) if (p.cardPossible(n))
+		if (answer->cardPossible(n))
 		{
-			answerCard = false;
-			break;
-		}
+			bool answerCard = true;
+			for (Player& p : *players) if (p.cardPossible(n))
+			{
+				answerCard = false;
+				break;
+			}
 
-		if (answerCard)
+			if (answerCard)
+			{
+				answer->addHand((Card)n, false);
+				if (n < DAGGER) for (short i = 0; i < DAGGER; ++i) if (i != n) answer->impossible((Card)n, false);
+				else if (n < HALL) for (short i = DAGGER; i < HALL; ++i) if (i != n) answer->impossible((Card)n, false);
+				else for (short i = HALL; i < END; ++i) if (i != n) answer->impossible((Card)n, false);
+			}
+		}
+		else
 		{
-			answer->addHand((Card)n, false);
-			if (n < DAGGER) for (short i = 0; i < DAGGER; ++i) if (i != n) answer->impossible((Card)n, false);
-			else if (n < HALL) for (short i = DAGGER; i < HALL; ++i) if (i != n) answer->impossible((Card)n, false);
-			else for (short i = HALL; i < END; ++i) if (i != n) answer->impossible((Card)n, false);
+			Player* toAdd = nullptr;
+			bool one = false;
+			for (Player& p : *players) if (p.cardPossible(n))
+			{
+				if (toAdd == nullptr)
+				{
+					toAdd = &p;
+					one = true;
+					continue;
+				}
+				one = false;
+				break;
+			}
+			if (one) toAdd->addHand(n, false);
 		}
-
 		if(!clue) updateClues();
 	}
 }
