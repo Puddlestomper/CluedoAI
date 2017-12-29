@@ -107,9 +107,24 @@ void Player::impossible(const Card& n, const bool& clue)
 			if (answerCard)
 			{
 				answer->addHand((Card)n, false);
-				if (n < DAGGER) for (short i = 0; i < DAGGER; ++i) if (i != n) answer->impossible((Card)n, false);
-				else if (n < HALL) for (short i = DAGGER; i < HALL; ++i) if (i != n) answer->impossible((Card)n, false);
-				else for (short i = HALL; i < END; ++i) if (i != n) answer->impossible((Card)n, false);
+				if (n < DAGGER)
+				{
+					for (short i = MISSSCARLET; i < DAGGER; ++i) if (i != n) answer->impossible((Card)n, false);
+					if (DEBUG) cout << "[DEBUG] Suspect found in Player::impossible for " << name << " with " << n << "\n";
+					else cout << "\nFound Suspect!\n";
+				}
+				else if (n < HALL)
+				{
+					for (short i = DAGGER; i < HALL; ++i) if (i != n) answer->impossible((Card)n, false);
+					if (DEBUG) cout << "\n[DEBUG] Weapon found in Player::impossible for " << name << " with " << n << "\n";
+					else cout << "\nFound Weapon!\n";
+				}
+				else
+				{
+					for (short i = HALL; i < END; ++i) if (i != n) answer->impossible((Card)n, false);
+					if (DEBUG) cout << "\n[DEBUG] Room found in Player::impossible for " << name << " with " << n << "\n";
+					else cout << "\nFound Room!\n";
+				}
 			}
 		}
 		else
