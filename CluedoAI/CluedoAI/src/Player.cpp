@@ -112,18 +112,21 @@ void Player::impossible(const Card& n, const bool& clue)
 					for (short i = MISSSCARLET; i < DAGGER; ++i) if (i != n) answer->impossible((Card)n, false);
 					if (DEBUG) cout << "[DEBUG] Suspect found in Player::impossible for " << name << " with " << n << "\n";
 					else cout << "\nFound Suspect!\n";
+					suspFound = true;
 				}
 				else if (n < HALL)
 				{
 					for (short i = DAGGER; i < HALL; ++i) if (i != n) answer->impossible((Card)n, false);
 					if (DEBUG) cout << "\n[DEBUG] Weapon found in Player::impossible for " << name << " with " << n << "\n";
 					else cout << "\nFound Weapon!\n";
+					wepFound = true;
 				}
 				else
 				{
 					for (short i = HALL; i < END; ++i) if (i != n) answer->impossible((Card)n, false);
 					if (DEBUG) cout << "\n[DEBUG] Room found in Player::impossible for " << name << " with " << n << "\n";
 					else cout << "\nFound Room!\n";
+					roomFound = true;
 				}
 			}
 		}
