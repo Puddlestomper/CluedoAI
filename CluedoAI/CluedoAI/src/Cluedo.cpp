@@ -24,7 +24,7 @@ vector<Node> board;
 
 short pos, roll, myIndex;
 
-bool moved = false, running = true;
+bool moved = false, running = true, bool suspFound = false, wepFound = false, roomFound = false;
 
 vector<Node*> pathTo(const short& pos);
 
