@@ -1,3 +1,5 @@
+#include "Cluedo.h"
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -5,7 +7,6 @@
 #include <time.h>
 #include <iterator>
 
-#include "Cluedo.h"
 #include "Clue.h"
 #include "Player.h"
 
@@ -126,7 +127,9 @@ struct MoveAction : public Action
 	//Move as far on the path as possible
 	bool perform() override
 	{
-		if (DEBUG) cout << "\n[DEBUG] MoveAction.perform() Called!\n";
+#if DEBUG == 1 
+		cout << "\n[DEBUG] MoveAction.perform() Called!\n"; 
+#endif
 		
 		if (path.size() == 0)
 		{
@@ -138,7 +141,11 @@ struct MoveAction : public Action
 		for (int i = 0; i < roll; ++i)
 		{
 			temp = path.back();
-			if (DEBUG) cout << "[DEBUG] Moving to square " << temp->index << "\n";
+
+#if DEBUG == 1 
+			cout << "[DEBUG] Moving to square " << temp->index << "\n";
+#endif
+
 			path.pop_back();
 			if (path.size() == 0)
 			{
@@ -165,7 +172,9 @@ struct GameEndAction : public MoveAction
 
 	bool perform() override
 	{
-		if (DEBUG) cout << "\n[DEBUG] GameEndAction.perform() Called!\n";
+#if DEBUG == 1 
+		cout << "\n[DEBUG] GameEndAction.perform() Called!\n";
+#endif
 
 		if (!endMA.perform()) return false;
 		vector<Card> hand = answer->getHand();
@@ -178,7 +187,9 @@ struct GameEndAction : public MoveAction
 	GameEndAction()
 		: endMA(pathTo(END)) 
 	{
-		if (DEBUG) cout << "[DEBUG] GameEndAction created!\n";
+#if DEBUG == 1 
+		cout << "[DEBUG] GameEndAction created!\n";
+#endif
 	}
 };
 
@@ -189,7 +200,9 @@ struct QueryAction : public Action
 	
 	bool perform() override
 	{
-		if (DEBUG) cout << "\n[DEBUG] QueryAction.perform() Called!\n";
+#if DEBUG == 1 
+		cout << "\n[DEBUG] QueryAction.perform() Called!\n";
+#endif
 		
 		if (room == -1) return true;
 		if (suspect == 21 || weapon == 21 || room == 21) return false;
@@ -340,8 +353,10 @@ vector<Node*> pathTo(const short& position)
 
 MoveAction getMove(const short& roll)
 {
-	if (DEBUG) cout << "\n[DEBUG] getMove(const short& roll) Called!\n";
-	
+#if DEBUG == 1 
+	cout << "\n[DEBUG] getMove(const short& roll) Called!\n";
+#endif
+
 	//BFS
 	queue<Node*> q;
 	q.push(&board[pos]);
@@ -434,8 +449,10 @@ MoveAction getMove(const short& roll)
 
 QueryAction getQuery()
 {
-	if (DEBUG) cout << "\n[DEBUG] getQuery() Called!\n";
-	
+#if DEBUG == 1 
+	cout << "\n[DEBUG] getQuery() Called!\n";
+#endif
+
 	QueryAction qa;
 	vector<bool> weapons = answer->posWeapons();
 	vector<bool> suspects = answer->posSuspects();
@@ -499,8 +516,10 @@ QueryAction getQuery()
 
 bool answerQuery(const short& index)
 {
-	if (DEBUG) cout << "\n[DEBUG] answerQuery(const short& index) Called!\n";
-	
+#if DEBUG == 1
+	cout << "\n[DEBUG] answerQuery(const short& index) Called!\n";
+#endif
+
 	Player* p = &(*players)[index];
 
 	char input;
@@ -741,7 +760,9 @@ int main()
 	{
 		myIndex = i;
 		mee = &lplayers[i];
-		if (DEBUG) cout << "[DEBUG] myIndex set!\n[DEBUG] My character: " << mee->character << "\n";
+#if DEBUG == 1
+		cout << "[DEBUG] myIndex set!\n[DEBUG] My character: " << mee->character << "\n";
+#endif
 		break;
 	}
 	//Handsize and showing players
@@ -754,7 +775,9 @@ int main()
 	{
 		i.setHandSize(hand);
 		cout << i.name;
-		if (DEBUG) cout << ": " << i.character;
+#if DEBUG == 1
+		cout << ": " << i.character;
+#endif
 		cout << "\n";
 	}
 	cout << "\n";
@@ -801,12 +824,12 @@ int main()
 		{
 			if (&lplayers[i] == mee)
 			{
-				if (DEBUG)
-				{
-					cout << "[DEBUG] Enter the roll: ";
-					cin >> roll;
-				}
-				else roll = 2 + rand() % 6 + rand() % 6;
+#if DEBUG == 1	
+				cout << "[DEBUG] Enter the roll: ";
+				cin >> roll;
+#else
+				roll = 2 + rand() % 6 + rand() % 6;
+#endif
 				cout << "Rolled " << roll << "\n";
 				actionQueue->push(getMove(roll));
 				if (actionQueue->front().perform())

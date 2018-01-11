@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 
-#define DEBUG true
+#define DEBUG 1
 
 using namespace std;
 

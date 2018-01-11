@@ -6,7 +6,9 @@
 
 bool Clue::check() const
 {
-	if (DEBUG) cout << "\n[DEBUG] Clue.check() Called!\n";
+#if DEBUG == 1
+	cout << "\n[DEBUG] Clue.check() Called!\n";
+#endif
 
 	//Check if all variables are true
 	for (short i = 0; i < vars.size(); ++i)

@@ -25,7 +25,9 @@ bool Player::handFull() const
 
 void Player::updateClues()
 {
-	if (DEBUG) cout << "[DEBUG] Player::updateClues() Called! Player: " << name << "\n";
+#if DEBUG == 1
+	cout << "[DEBUG] Player::updateClues() Called! Player: " << name << "\n";
+#endif
 	for (vector<Clue>::iterator i = clues.begin(); i != clues.end(); ++i)
 	{
 		if (i->check())
@@ -34,7 +36,9 @@ void Player::updateClues()
 			i = clues.begin() - 1;
 		}
 	}
-	if (DEBUG) cout << "[DEBUG] Player::updateClues() Ended! Player: " << name << "\n";
+#if DEBUG == 1
+	cout << "[DEBUG] Player::updateClues() Ended! Player: " << name << "\n";
+#endif
 }
 
 void Player::setHandSize(const short& size)
@@ -59,7 +63,9 @@ bool Player::addHand(const Card& c, const bool& clue)
 	{
 		hand.emplace_back((Card)c);
 		sort(hand.begin(), hand.end());
-		if (DEBUG) cout << "[DEBUG] Added " << c << " to " << name << "'s hand!\n";
+#if DEBUG == 1 
+		cout << "[DEBUG] Added " << c << " to " << name << "'s hand!\n";
+#endif
 
 		if (answer != this) answer->impossible(c, false);
 		for (Player& p : *players) if (&p != this) p.impossible(c, false);
@@ -88,7 +94,9 @@ void Player::impossible(const Card& n, const bool& clue)
 {
 	if (!handFull() && possible[n])
 	{
-		if (DEBUG) cout << "[DEBUG] " << n << " is impossible for " << name << "\n";
+#if DEBUG == 1 
+		cout << "[DEBUG] " << n << " is impossible for " << name << "\n";
+#endif
 
 		possible[n] = false;
 		short size = numPossible(possible);
@@ -110,22 +118,31 @@ void Player::impossible(const Card& n, const bool& clue)
 				if (n < DAGGER)
 				{
 					for (short i = MISSSCARLET; i < DAGGER; ++i) if (i != n) answer->impossible((Card)n, false);
-					if (DEBUG) cout << "[DEBUG] " << n << " found to be the suspect in Player::impossible for " << name << " with " << n << "\n";
+#if DEBUG == 1 
+					cout << "[DEBUG] " << n << " found to be the suspect in Player::impossible for " << name << " with " << n << "\n";
+#else
 					else cout << "\n" << n << " is the suspect!\n";
+#endif
 					suspFound = true;
 				}
 				else if (n < HALL)
 				{
 					for (short i = DAGGER; i < HALL; ++i) if (i != n) answer->impossible((Card)n, false);
-					if (DEBUG) cout << "[DEBUG] " << n << " found to be the weapon in Player::impossible for " << name << " with " << n << "\n";
-					else cout << "\n" << n << " is the weapon!\n";
+#if DEBUG == 1
+					cout << "[DEBUG] " << n << " found to be the weapon in Player::impossible for " << name << " with " << n << "\n";
+#else
+					cout << "\n" << n << " is the weapon!\n";
+#endif
 					wepFound = true;
 				}
 				else
 				{
 					for (short i = HALL; i < END; ++i) if (i != n) answer->impossible((Card)n, false);
-					if (DEBUG) cout << "[DEBUG] " << n << " found to be the room in Player::impossible for " << name << " with " << n << "\n";
-					else cout << "\n" << n << " is the room!\n";
+#if DEBUG == 1
+					cout << "[DEBUG] " << n << " found to be the room in Player::impossible for " << name << " with " << n << "\n";
+#else
+					cout << "\n" << n << " is the room!\n";
+#endif
 					roomFound = true;
 				}
 			}
